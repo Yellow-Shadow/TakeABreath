@@ -1,0 +1,84 @@
+package pr.dawe.game.entities;
+
+import pr.dawe.game.Game;
+import pr.dawe.game.GameEvents;
+import pr.dawe.game.InputHandler;
+import pr.dawe.game.level.Level;
+import pr.dawe.game.level.tiles.Tile;
+
+public abstract class Mob extends Entity {
+
+	public static Mob mob = null;
+	protected String name;
+	protected int speed;
+	protected int numSteps = 0;
+	protected boolean isMoving;
+	protected int movingDir = 1;
+	protected int scale = 1;
+	public static int hp;
+	public static int force = 10;
+
+	public Mob(Level level, String name, int x, int y, int speed, int hp, int attack) {
+		super(level);
+		this.name = name;
+		this.x = x;
+		this.y = y;
+		this.speed = speed;
+		this.hp = hp;
+		force = attack;
+	}
+
+	public void move(int xa, int ya) {
+		// System.out.printf("speed = %d%n", speed);
+		if (xa != 0 && ya != 0) {
+			move(xa, 0);
+			move(0, ya);
+			numSteps--;
+			return;
+		}
+		numSteps++;
+		if (!hasCollided(xa, ya)) {
+			if (ya < 0)
+				movingDir = 0;
+			if (ya > 0)
+				movingDir = 1;
+			if (xa < 0)
+				movingDir = 2;
+			if (xa > 0)
+				movingDir = 3;
+			x += xa * speed;
+			y += ya * speed;
+		}
+
+	}
+	
+	public abstract boolean hasCollided(int xa, int ya);
+
+	protected boolean isSolidTile(int xa, int ya, int x, int y) {
+		if (level == null) {
+			return false;
+		}
+		Tile lastTile = level.getTile((this.x + x) >> 3, (this.y + y) >> 3);
+		Tile newTile = level.getTile((this.x + x + xa) >> 3, (this.y + y + ya) >> 3);
+		if (!lastTile.equals(newTile) && newTile.isSolid()) {
+			return true;
+		}
+		return false;
+	}
+
+	/*protected boolean isMonster(int xa, int ya, int x, int y) {
+		if (level == null) {
+			return false; 
+		} 
+		
+		NPC lastNPC = level.getMonster((this.x +x) >> 3, (this.y + y) >> 3);
+		
+		NPC newNPC = level.getMonster((this.x + x + xa) >> 3, (this.y + y + ya) >> 3);
+		
+		if (!lastNPC.equals(newNPC) && newNPC.isSolid()) { 
+			return true; 
+		}
+		return false;
+	}*/
+
+}
